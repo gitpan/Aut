@@ -22,7 +22,7 @@ use Aut::UI::Console;
 use Aut::Base64;
 use Aut::Backend::Conf;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
   my $class=shift;
@@ -146,6 +146,28 @@ sub exists {
   my $self=shift;
   my $account=shift;
   return $self->{"backend"}->exists($account);
+}
+
+#####################################################################
+# Bag functionality --> Backend as Configuration file
+#####################################################################
+
+sub set {
+  my ($self,$ticket,$var,$val) = @_;
+  $val=$ticket->encrypt($val);
+  $self->{"backend"}->set($ticket->account(),$var,$val);
+}
+
+sub get {
+  my ($self,$ticket,$var) = @_;
+  my $val=$self->{"backend"}->get($ticket->account(),$var);
+  $val=$ticket->decrypt($val);
+  return $val;
+}
+
+sub del {
+  my ($self,$ticket,$var) = @_;
+  $self->{"backend"}->del($ticket->account(),$var);
 }
 
 #####################################################################
@@ -815,6 +837,25 @@ The rights and/or seed values have been modified.
 
 Removes the account that ticket stands for from the backend and invalidates
 the ticket.
+
+=head2 BAG related functions
+
+These functions give the program the possibility to set, get and del 
+configuration items. The items will be encrypted.
+
+=head3 C<set(ticket,var,val) --E<gt> void>
+
+Will set the variable 'var' in the backend configuration part to
+value 'val'. 
+
+=head3 C<get(ticket,var) --E<gt> value>
+
+Will get the variable 'var' from the backend. The value retreived
+will be decrypted.
+
+=head3 C<del(ticket,var) --E<gt> void>
+
+Will delete variable 'var' from the backend.
 
 =head2 Administrator related functions
 

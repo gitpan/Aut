@@ -73,19 +73,36 @@ return @accounts;
 
 ###
 
-sub set {
+sub internal_set {
   my ($self,$account,$val,$type)=@_;
   $self->{"conf"}->set("aut_$type.$account",$val);
 }
 
-sub get {
+sub internal_get {
   my ($self,$account,$type)=@_;
   $self->{"conf"}->get("aut_$type.$account");
 }
 
-sub del {
+sub internal_del {
   my ($self,$account,$type)=@_;
   $self->{"conf"}->del("aut_$type.$account");
+}
+
+###
+
+sub set {
+  my ($self,$account,$var,$val)=@_;
+  $self->internal_set($account,$val,"config.$var");
+}
+
+sub get {
+  my ($self,$account,$var)=@_;
+  $self->internal_get($account,"config.$var");
+}
+
+sub del {
+  my ($self,$account,$var)=@_;
+  $self->internal_del($account,"config.$var");
 }
 
 ###
@@ -93,25 +110,25 @@ sub del {
 sub set_pass { 
   my ($self,$account,$pass)=@_;
   $pass=md5_base64($pass);
-  $self->set($account,$pass,"pass"); 
+  $self->internal_set($account,$pass,"pass"); 
 }
 
-sub set_rsa_pass { set(@_,"rsa_pass"); }
-sub set_rights { set(@_,"rights"); }
-sub set_seed { set(@_,"seed"); }
-sub set_sr_hash{ set(@_,"sr_hash"); }
+sub set_rsa_pass { internal_set(@_,"rsa_pass"); }
+sub set_rights { internal_set(@_,"rights"); }
+sub set_seed { internal_set(@_,"seed"); }
+sub set_sr_hash{ internal_set(@_,"sr_hash"); }
 
 # There is no get_pass. Passwords are only checked
-sub get_rsa_pass { get(@_,"rsa_pass"); }
-sub get_rights { get(@_,"rights"); }
-sub get_seed { get(@_,"seed"); }
-sub get_sr_hash { get(@_,"sr_hash"); }
+sub get_rsa_pass { internal_get(@_,"rsa_pass"); }
+sub get_rights { internal_get(@_,"rights"); }
+sub get_seed { internal_get(@_,"seed"); }
+sub get_sr_hash { internal_get(@_,"sr_hash"); }
 
-sub del_pass { del(@_,"pass"); }
-sub del_rsa_pass { del(@_,"rsa_pass"); }
-sub del_rights { del(@_,"rights"); }
-sub del_seed { del(@_,"seed"); }
-sub del_sr_hash { del(@_,"sr_hash"); }
+sub del_pass { internal_del(@_,"pass"); }
+sub del_rsa_pass { internal_del(@_,"rsa_pass"); }
+sub del_rights { internal_del(@_,"rights"); }
+sub del_seed { internal_del(@_,"seed"); }
+sub del_sr_hash { internal_del(@_,"sr_hash"); }
 
 sub del_account {
   del_pass(@_);
@@ -124,12 +141,12 @@ sub del_account {
 sub pass_ok {
   my ($self,$account,$pass)=@_;
   $pass=md5_base64($pass);
-  my $stored_pass=$self->get($account,"pass");
+  my $stored_pass=$self->internal_get($account,"pass");
  return ($stored_pass eq $pass);
 }
 
 sub exists {
-  return (defined get(@_,"pass"));
+  return (defined internal_get(@_,"pass"));
 }
 
 1;

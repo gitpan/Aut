@@ -57,8 +57,10 @@ tt("Initializing 'admin' account with password 'testpass'");
 
 my $ticket=$aut->ticket_get("admin","testpass");
 if (not $ticket->valid()) {
+  print "HI!\n";
   $ticket=new Aut::Ticket("admin","testpass");
   $ticket->set_rights("admin");
+  print "$ticket\n";
   $aut->ticket_create($ticket);
 }
 
@@ -116,7 +118,36 @@ if ($ticket->valid()) {
   tt("Testing symmetric encryption");
 
   if ($text eq $dtext) {
-    print "encryption/decryption = symmetric, ok\n";
+    ok();
+  }
+  else {
+    nok();
+  }
+
+  tt("Testing bag 1");
+
+  $aut->set($ticket,"var","value");
+  $aut->set($ticket,"var1","value1");
+  if ($aut->get($ticket,"var1") eq "value1") {
+    ok();
+  }
+  else {
+    nok();
+  }
+
+  if ($aut->get($ticket,"var") eq "value") {
+    ok();
+  }
+  else {
+    nok();
+  }
+
+  $aut->del($ticket,"var1");
+  if ($aut->get($ticket,"var1") eq undef) {
+    ok();
+  }
+  else {
+    nok();
   }
 }
 

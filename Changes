@@ -1,3 +1,6 @@
+0.07 Added BAG functionality to the Aut Framework. Through 
+     Aut, configuration items can be set for a ticket.
+
 0.06 Fixed a flaw in the ticket_all_admin_get() routine.
      This routine must check the validity of the given
      password for the RSA Private key, otherwise the underlying
