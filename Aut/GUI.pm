@@ -1,4 +1,4 @@
-package dlgLogin;
+package Aut::dlgLogin;
 
 use Wx qw[:everything];
 use base qw(Wx::Dialog);

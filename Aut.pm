@@ -6,7 +6,7 @@ use warnings;
 use Aut::Ticket;
 use Digest::MD5 qw(md5_base64);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
   my $class=shift;
@@ -27,7 +27,7 @@ sub has_accounts {
 }
 
 sub admin_ticket {
-  return new auth::ticket(ADMIN => 1);
+  return new Aut::Ticket(ADMIN => 1);
 }
 
 sub check_login {
@@ -247,3 +247,4 @@ This library is free software; you can redistribute it and/or modify
 it under LGPL terms.
 
 =cut
+

@@ -4,7 +4,7 @@ use strict;
 use Aut::GUI;
 use Lang;
 
-use base qw(dlgLogin);
+use base qw(Aut::dlgLogin);
 
 sub new {
     my $class=shift;
