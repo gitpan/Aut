@@ -1,6 +1,6 @@
 package Aut::UI::Console;
 
-# $Id: Console.pm,v 1.3 2004/04/10 09:00:11 cvs Exp $ 
+# $Id: Console.pm,v 1.4 2004/04/10 09:33:58 cvs Exp $ 
 
 use strict;
 use Term::ReadKey;

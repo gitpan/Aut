@@ -1,6 +1,6 @@
 package Aut;
 
-# $Id: Aut.pm,v 1.21 2004/04/10 09:00:11 cvs Exp $
+# $Id: Aut.pm,v 1.23 2004/04/11 19:17:10 cvs Exp $
 
 use 5.006;
 use strict;
@@ -22,7 +22,7 @@ use Aut::UI::Console;
 use Aut::Base64;
 use Aut::Backend::Conf;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub new {
   my $class=shift;
@@ -78,12 +78,15 @@ sub initialize {
   my $bits=shift;
 
   if (not defined $self->{"backend"}->get_keys()) {
-    my $pass=$self->{"ui"}->ask_pass($self,_T("Initializing cryptography system\n".
+    my $pass=$self->{"ui"}->ask_pass($self,_T("Initializing cryptography system.\n".
 					"Please provide a password for the global\n".
 					"RSA key-pair. You need to keep this password\n".
 					"secret and will have to remember it!"));
-
     if (not defined $pass) { die "Cannot continue without password"; }
+
+    my $passagain=$self->{"ui"}->ask_pass($self,_T("Enter the RSA password again for verification."));
+    if ($pass ne $passagain) { die "Cannot continue with two different passwords"; }
+
 
     $self->{"ui"}->message(_T("Generating keys, this will take some time...")."($bits bits)");
     my $rsa = new Crypt::RSA;
