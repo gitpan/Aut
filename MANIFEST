@@ -1,12 +1,11 @@
 Aut.pm
-Aut/Login.pm
-Aut/GUI.pm
-Aut/gui.wxg
 Aut/Ticket.pm
-Aut/Backend/SQL.pm
+Aut/Crypt.pm
+Aut/Base64.pm
+Aut/Backend/Conf.pm
+Aut/UI/Console.pm
 Changes
 Makefile.PL
 MANIFEST
 README
 test.pl
-

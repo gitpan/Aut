@@ -1,30 +1,32 @@
 package Aut::Ticket;
 
 use strict;
-use warnings;
+
+use Aut::Base64;
+use Aut::Crypt;
+
+srand(time());
 
 sub new {
     my $class=shift;
-    my $self={
-	ADMIN => 0,
-	MUTATE => 0,
-	VIEW => 0,
-	VALID => 0,
-	FROM => undef,
-	@_
-    };
+    my $account=shift;
+    my $pass=shift;
 
-    if (defined $self->{"FROM"}) {
-	my ($admin, $mutate, $view, $valid) = split /,/,$self->{"FROM"};
-      $self->{"ADMIN"} = $admin;
-      $self->{"MUTATE"} = $mutate;
-      $self->{"VIEW"} = $view;
-      $self->{"VALID"} = $valid;
-    }
+    my $self;
 
-    if ($self->{"ADMIN"} or $self->{"MUTATE"} or $self->{"VIEW"}) {
-      $self->{"VALID"}=1;
+    $self->{"conf"}->{"aut"}="there";
+
+    $self->{"pass"}=$pass;
+    $self->{"account"}=$account;
+    $self->{"valid"}=1;
+
+    my $s="";
+    while (length($s)<32) {
+      $s.=rand();
+      $s=~s/[^0-9]//g;
     }
+    $s=substr($s,0,32);
+    $self->{"seed"}=$s;
 
     bless $self,$class;
 return $self;
@@ -32,158 +34,264 @@ return $self;
 
 sub invalidate {
   my $self=shift;
-  $self->{"VALID"}=0;
+  $self->{"valid"}=0;
 }
 
 sub valid {
   my $self=shift;
-return $self->{"VALID"};
+return $self->{"valid"};
 }
 
-sub admin {
+sub rights {
   my $self=shift;
-return $self->{"ADMIN"};
+return $self->{"rights"};
 }
 
-sub mutate {
+sub account {
   my $self=shift;
-return $self->{"MUTATE"} or $self->{"ADMIN"};
+return $self->{"account"};
 }
 
-sub view {
+sub pass {
   my $self=shift;
-return $self->{"VIEW"} or $self->mutate() or $self->admin();
+return $self->{"pass"};
 }
 
-sub log {
+sub seed {
   my $self=shift;
-  print "auth::ticket: admin=",$self->admin(),
-        " mutate=",$self->mutate(),
-        " view=",$self->view(),
-	" valid=",$self->valid(),
-	"\n";
+return $self->{"seed"};
 }
 
-sub to_string {
+
+sub set_rights {
   my $self=shift;
-return sprintf("%d,%d,%d,%d",$self->admin(),$self->mutate(),$self->view(),$self->valid());
+  my $rights=shift;
+  $self->{"rights"}=$rights;
 }
+
+sub set_seed {
+  my $self=shift;
+  my $seed=shift;
+  $self->{"seed"}=$seed;
+}
+
+sub set_pass {
+  my $self=shift;
+  my $pass=shift;
+  $self->{"pass"}=$pass;
+}
+
+sub encrypt {
+  my $self=shift;
+  my $text=shift;
+  my $crypter=new Aut::Crypt($self->seed());
+  my $base64=new Aut::Base64();
+return $base64->encode($crypter->encrypt("crypted".$text));
+}
+
+sub decrypt {
+  my $self=shift;
+  my $text=shift;
+  my $dtext;
+  my $crypter=new Aut::Crypt($self->seed());
+  my $base64=new Aut::Base64();
+
+  $dtext=$crypter->decrypt($base64->decode($text));
+  if (substr($dtext,0,7) ne "crypted") {
+    return undef;
+  }
+  else {
+    return substr($dtext,7,length($dtext));
+  }
+}
+
+sub set {
+  my $self=shift;
+  my $var=shift;
+  my $val=shift;
+  $self->{"conf"}->{$var}=$val;
+}
+
+sub get {
+  my $self=shift;
+  my $var=shift;
+return  $self->{"conf"}->{$var};
+}
+
 1;
 __END__
 
 =head1 NAME
 
-Aut::Ticket - Authorization Framework for wxPerl - Tickets
+Aut::Ticket - Authorization Framework - Tickets
 
 =head1 SYNOPSIS
 
-    use Aut::Backend::SQL;
-    use Aut;
-    use Aut::Login;
-    use DBI;
-    use Lang::SQL;
-    use Lang;
-
-    package testApp;
-
-    use base 'Wx::App';
-
-    sub OnInit {
-      my $dbname="zclass";
-      my $host="localhost";
-      my $user="zclass";
-      my $pass="";
-      my $dsn="dbi:Pg:dbname=$dbname;host=$host";
-
-      Lang::init(new Lang::SQL("dbi:Pg:dbname=$dbname;host=$host",$user,$pass));
-
-      my $backend=Aut::Backend::SQL->new($dsn,$user,$pass);
-      my $auth=Aut->new($backend);
-
-      my $login=Aut::Login->new($auth,"test application");
-
-      my $ticket=$login->login();
-      $ticket->log();
-
-      $ticket=Aut::Ticket->new(ADMIN => 1);
-      $ticket->log();
-      $auth->create_account("admin","test",$ticket);
-
-      print "login with admin, pass=test\n";
-
-      $ticket=$login->login();
-
-      $ticket->log();
-
-      $login->Destroy;
-
-      return 0;
-    }
-
-    package main;
-
-    my $a= new testApp;
-    $a->MainLoop();
-
+See L<Aut|Aut>.
 =head1 ABSTRACT
 
-'Aut::Ticket' is part of the authorization framework that can be used
-in conjunction with wxPerl. It provides the ticket authorization system.
+'Aut::Ticket' is part of the 'Aut' authorization framework
+It provides tickets that are the user's access to services
+and application parts. It also provides encryption/decryption
+for user data.
 
 =head1 DESCRIPTION
 
-=head2 C<new(ADMIN => 0/1, MUTATE => 0/1, VIEW => 0/1, VALID => 0/1, FROM => string)> --E<gt> Aut::Ticket
+=over 1
 
-This method initializes a ticket with given values for ADMIN, MUTATE, VIEW and VALID;
-or let's it initialize from the 'FROM' argument, that has earlier been created with
-the C<to_string> function.
+=item *
 
-=head2 C<invalidate()> --E<gt> void
+A ticket consists of an account, a password, user's rights and a key value
+used for symmetric encryption algorithms. 
 
-This method invalidates the ticket it's called on, e.g:
+=item *
 
-    my $ticket=new Aut::Ticket(ADMIN => 1);
-    
-    (...)
+Rights are fully transparant for a ticket. The application context prescribes
+the rights that can be used. A ticket's rights value is just a string.
 
-    $ticket->invalidate();
+=item *
 
-=head2 C<valid()> --E<gt> boolean
+The key value, called C<seed> in the
+Aut::Ticket context, is a (random) value of 32 digits, that is generated when
+a new ticket is made and can be set through public  methods.
 
-This method returns 'true' for a valid ticket and 'false'
-for an invalid one.
+=item *
 
-=head2 C<admin()> --E<gt> boolean
+A ticket can be valid and invalid. 
 
-This method returns true if the ticket it's called on 
-has ADMIN =E<gt> 1.
+=item *
 
-=head2 C<mutate()> --E<gt> boolean
+A ticket acts like a bag. You can set and get extra values to and from it.
 
-This method returns true if the ticket it's called on 
-has MUTATE =E<gt> 1.
+=back
 
-=head2 C<view()> --E<gt> boolean
+=head2 Instantiating
 
-This method returns true if the ticket it's called on 
-has VIEW =E<gt> 1.
+=head3 C<new(account,password)> --E<gt> Aut::Ticket
 
-=head2 C<log()> --E<gt> void
+=over 1
 
-This method prints the internals of an Aut::Ticket object
-(with function 'print').
+This method initializes a ticket with a given account and password and generates
+a new seed.
 
-=head2 C<to_string()> --E<gt> string
+=back 
 
-This method converts an Aut::Ticket object to a string.
-The Aut::Ticket class provides a way to instantiate
-a new Aut::Ticket object from such a string (using the
-'FROM' keyword with method 'new').
+=head2 Querying
+
+=head3 C<valid() --E<gt> boolean>
+
+=over 1
+
+Returns true, if the ticket is valid, returns False, otherwise.
+
+=back 
+
+=head3 C<rights() --E<gt> string>
+
+=over 1
+
+Returns the currently assigned "rights" value to this ticket.
+
+=back 
+
+=head3 C<account() --E<gt> string>
+
+=over 1
+
+Returns the currently assigned account for this ticket.
+
+=back 
+
+=head3 C<pass() --E<gt> string>
+
+=over 1
+
+Returns the currently assigned password for this ticket.
+
+=back 
+
+=head3 C<seed() --E<gt> string>
+
+=over 1
+
+Returns the seed value of this ticket that is being used for
+encryption/decryption.
+
+=back 
+
+=head3 C<get(var) --E<gt> string>
+
+=over 1
+
+Gets value for 'var' from the ticket.
+
+=back
+
+=head2 Setting
+
+=head3 C<invalidate() --E<gt> void>
+
+=over 1
+
+Invalidates a ticket.
+
+=back 
+
+=head3 C<set_rights(_rights) --E<gt> void>
+
+=over 1
+
+Sets the rights value of the ticket to _rights.
+
+=back
+
+=head3 C<set_pass(_pass) --E<gt> void>
+
+=over 1
+
+Sets the password of the ticket to _pass.
+
+=back
+
+=head3 C<set_seed(_seed) --E<gt> void>
+
+=over 1
+
+Sets the seed value of the ticket (the encryption key) to _seed.
+
+=back
+
+=head3 C<set(var,val) --E<gt> void>
+
+=over 1
+
+Sets a variable 'var' in the ticket to value 'val'.
+
+=back
+
+
+=head2 Encryption/Decryption
+
+=head3 C<encrypt(text) --E<gt> base64 string>
+
+=over 1
+
+Encrypts text using L<Aut::Crypt>, with key C<seed()>; returns
+a base64 encoded (with L<Aut::Base64>) encrypted string.
+
+=back
+
+=head3 C<decrypt(ciphertext) --E<gt> string>
+
+=over 1
+
+Decrypts text using L<Aut::Crypt>, after it has been decoded
+with L<Aut::Base64>. If the decryption is valid, it returns
+the decrypted string, otherwise C<undef> is returned.
 
 =head1 SEE ALSO
 
-L<http://wxperl.sf.net>, L<Lang framework|Lang>, L<Aut framework|Aut>, L<Aut::Login|Aut::Login>, 
-L<Aut::Backend::SQL|Aut::Backend::SQL>.
+L<Aut framework|Aut>, L<Aut::Base64|Aut::Base64>, L<Aut::Crypt|Aut::Crypt>.
 
 =head1 AUTHOR
 
@@ -192,7 +300,7 @@ Hans Oesterholt-Dijkema <oesterhol@cpan.org>
 =head1 COPYRIGHT AND LICENSE
 
 This library is free software; you can redistribute it and/or modify
-it under LGPL terms.
+it under Artistic license.
 
 =cut
 

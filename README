@@ -1,4 +1,4 @@
-Aut version 0.01
-=================
+Aut - Authorization framework
+=============================
 
-You'll have to edit the test.pl script to run the test.
+This module uses interactive testing through the user interface.

@@ -1,71 +1,151 @@
-#!/usr/bin/perl
+# Perl
+# $Id: test.pl,v 1.5 2004/04/08 16:55:13 cvs Exp $ 
+################################################################
+# Setup custom Test script
+################################################################
 
-use Aut::Backend::SQL;
+BEGIN { print "1..?\n"; }
+
+my $tcount=0;
+sub tt {
+  printf "%3d...%s\n",$tcount,shift;
+}
+
+sub ok {
+  print "--> ok $tcount\n";
+  $tcount+=1;
+}
+
+sub nok {
+  print "--> nok $tcount\n";
+  $tcount+=1;
+}
+
+################################################################
+# Use modules
+################################################################
+
+tt("Using the modules we need"); 
+
 use Aut;
-use Aut::Login;
-use DBI;
-use Lang::SQL;
-use Lang;
+use Aut::UI::Console;
+use Aut::Backend::Conf;
+use Config::Frontend;
+use Config::Backend::INI;
+use strict;
 
-my $IDIDIT=0;
-my $dbname="zclass";
-my $host="localhost";
-my $user="zclass";
-my $pass="";
-my $dsn="dbi:Pg:dbname=$dbname;host=$host";
+ok();
 
-if (not $IDIDIT) {
-    print "\n";
-    print "\n";
-    print "***************************************************\n";
-    print "NB! You may need to enter proper values for\n";
-    print "\$DSN, \$USER and \$PASS for this test to work!\n";
-    print "Set \$IDIDIT to 1, after you set them to the right\n";
-    print "values.\n";
-    print "***************************************************\n";
-    print "\n";
-    print "continuing test...\n";
-    print "\n";
-    print "\n";
+################################################################
+# Instantiate aut system
+################################################################
+
+tt("Initializing aut object");
+
+my $cfg=new Config::Frontend(new Config::Backend::INI("./accounts.ini"));
+my $backend=new Aut::Backend::Conf($cfg);
+my $ui=new Aut::UI::Console();
+my $aut=new Aut( Backend => $backend, UI => $ui, RSA_Bits => 512 );
+
+ok();
+
+################################################################
+# Initializing admin
+################################################################
+
+tt("Initializing 'admin' account with password 'testpass'");
+
+my $ticket=$aut->ticket_get("admin","testpass");
+if (not $ticket->valid()) {
+  $ticket=new Aut::Ticket("admin","testpass");
+  $ticket->set_rights("admin");
+  $aut->ticket_create($ticket);
 }
 
-package testApp;
+ok();
 
-use base 'Wx::App';
+################################################################
+# test ui
+################################################################
 
-sub OnInit {
+################################################################
+# test LOGIN
+################################################################
 
-  Lang::init(new Lang::SQL($dsn,$user,$pass));
+tt("Testing user interface, logging in (login with 'admin' and 'testpass')");
 
-  my $backend=Aut::Backend::SQL->new($dsn,$user,$pass);
-  my $auth=Aut->new($backend);
+print "\n";
 
-  my $login=Aut::Login->new($auth,"test application");
+$ticket=$aut->login();
 
-  my $ticket=$login->login();
-  $ticket->log();
+print "account :",$ticket->account(),"\n";
+print "rights  :",$ticket->rights(),"\n";
 
-  $ticket=Aut::Ticket->new(ADMIN => 1);
-  $ticket->log();
-  $auth->create_account("admin","test",$ticket);
+ok();
 
-  print "login with admin, pass=test\n";
+################################################################
+# test ADMIN
+################################################################
 
-  $ticket=$login->login();
+tt("Testing user interface, administrator menu (do whatever you think is appropriate ;-)).");
 
-  $ticket->log();
+$aut->admin($ticket);
 
-  $login->Destroy;
+print "account :",$ticket->account(),"\n";
+print "rights  :",$ticket->rights(),"\n";
 
-  print "\n\nTEST ENDED OK, please don't mind the OnInit error\n\n";
+ok();
 
-  return 0;
+################################################################
+# Change password
+################################################################
+
+tt("Testing user interface, Changing password");
+
+$aut->change_pass($ticket);
+
+if ($ticket->valid()) {
+  my $text="This is a text!!";
+
+  my $ciphertext=$ticket->encrypt($text);
+  my $dtext=$ticket->decrypt($ciphertext);
+
+  ok();
+
+  
+  tt("Testing symmetric encryption");
+
+  if ($text eq $dtext) {
+    print "encryption/decryption = symmetric, ok\n";
+  }
 }
 
-package main;
+ok();
 
-my $a= new testApp;
-$a->MainLoop();
+################################################################
+# Post message
+################################################################
+
+print <<EOF
+You can repeat this test, after adding some accounts with different
+authorization levels. Try e.g.:
+
+- Installing with an account without 'admin' rights.
+- Logging in with an invalid account (login will prompt you max. 3 times).
+- Enter false data while changing the password.
+- Change passwords from the admin menu.
+- Change rights from the admin menu.
+- Delete all accounts.
+- Change rights of all accounts until and including the last admin account.
+
+etc.
+
+EOF
+
+
+
+
+
 
 
 
