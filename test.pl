@@ -110,7 +110,9 @@ if ($ticket->valid()) {
   my $text="This is a text!!";
 
   my $ciphertext=$ticket->encrypt($text);
+  print $ciphertext,"\n";
   my $dtext=$ticket->decrypt($ciphertext);
+  print $dtext,"\n";
 
   ok();
 

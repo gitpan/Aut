@@ -1,6 +1,6 @@
 package Aut;
 
-# $Id: Aut.pm,v 1.19 2004/04/09 12:28:43 cvs Exp $
+# $Id: Aut.pm,v 1.20 2004/04/09 13:05:14 cvs Exp $
 
 use 5.006;
 use strict;
@@ -22,7 +22,7 @@ use Aut::UI::Console;
 use Aut::Base64;
 use Aut::Backend::Conf;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 sub new {
   my $class=shift;

@@ -1,6 +1,6 @@
 package Aut::Backend::Conf;
 
-# $Id: Conf.pm,v 1.7 2004/04/09 12:28:43 cvs Exp $
+# $Id: Conf.pm,v 1.8 2004/04/09 13:05:14 cvs Exp $
 
 use strict;
 use Config::Frontend;

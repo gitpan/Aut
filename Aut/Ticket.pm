@@ -81,12 +81,25 @@ sub set_pass {
   $self->{"pass"}=$pass;
 }
 
+sub gen6 {
+  my $r="";
+
+  while (length $r lt 6) {
+    $r.=rand();
+    $r=~s/[.]//;
+    $r=~s/^0//;
+  }
+  $r=substr($r,0,6);
+return $r;
+}
+
 sub encrypt {
   my $self=shift;
   my $text=shift;
   my $crypter=new Aut::Crypt($self->seed());
   my $base64=new Aut::Base64();
-return $base64->encode($crypter->encrypt("crypted".$text));
+  my $r=gen6();
+return $base64->encode($crypter->encrypt("$r$r".$text));
 }
 
 sub decrypt {
@@ -97,11 +110,13 @@ sub decrypt {
   my $base64=new Aut::Base64();
 
   $dtext=$crypter->decrypt($base64->decode($text));
-  if (substr($dtext,0,7) ne "crypted") {
+  my $r1=substr($dtext,0,6);
+  my $r2=substr($dtext,6,6);
+  if ($r1 ne $r2) {
     return undef;
   }
   else {
-    return substr($dtext,7,length($dtext));
+    return substr($dtext,12,length($dtext));
   }
 }
 

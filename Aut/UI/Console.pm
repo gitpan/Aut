@@ -400,15 +400,6 @@ level that has administrator rights.
 
 =head2 Message related functions
 
-=head3 C<message(msg:string) --E<gt> void>
-
-=over 1
-
-This function displays message 'msg' for this UI. Usually called
-to display some log message or information  message about work in progress.
-
-=back
-
 =head3 C<message_ok(msg:string) --E<gt> void>
 
 =over 1

@@ -1,3 +1,9 @@
+0.09 Encryption through tickets using a different scheme.
+     Instead of beginning all encryptions with the string 'crypted',
+     it starts with a random sequence of 6 bytes, which is repeated.
+     The decryption algorithm checks if the first and the second
+     6 bytes are the same.
+
 0.08 Documentation change; Minor bug with decrypting rsa private solved.
      Delete all variables in the bag if account is deleted.
 
