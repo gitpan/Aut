@@ -1,6 +1,6 @@
 package Aut;
 
-# $Id: Aut.pm,v 1.18 2004/04/08 16:55:13 cvs Exp $
+# $Id: Aut.pm,v 1.19 2004/04/09 12:28:43 cvs Exp $
 
 use 5.006;
 use strict;
@@ -22,7 +22,7 @@ use Aut::UI::Console;
 use Aut::Base64;
 use Aut::Backend::Conf;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub new {
   my $class=shift;
@@ -884,7 +884,11 @@ variants of account passwords (or gets it through the optional C<pass> parameter
 and uses it to return tickets for all accounts that are reported 
 through C<list_accounts()>.
 
-Returns a list of tickets.
+Returns a list of tickets. Or, if the rsa private key could not be decrypted,
+C<undef>. 
+
+Note! If undef is returned and put into a list by assignment 
+(C<@tickets=ticket_all_admin_get()>),the undef will be inside the list!
 
 =back
 

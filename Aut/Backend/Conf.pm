@@ -1,6 +1,6 @@
 package Aut::Backend::Conf;
 
-# $Id: Conf.pm,v 1.6 2004/04/08 16:55:13 cvs Exp $
+# $Id: Conf.pm,v 1.7 2004/04/09 12:28:43 cvs Exp $
 
 use strict;
 use Config::Frontend;
@@ -105,6 +105,15 @@ sub del {
   $self->internal_del($account,"config.$var");
 }
 
+sub del_bag {
+  my ($self,$account)=@_;
+  for my $var ($self->{"conf"}->variables()) {
+    if ($var=~/^aut_config/ and $var=~/$account$/) {
+      $self->{"conf"}->del($var);
+    }
+  }
+}
+
 ###
 
 sub set_pass { 
@@ -136,6 +145,7 @@ sub del_account {
   del_rights(@_);
   del_seed(@_);
   del_sr_hash(@_);
+  del_bag(@_);
 }
 
 sub pass_ok {
