@@ -1,6 +1,6 @@
 package Aut::UI::Console;
 
-# $Id: Console.pm,v 1.2 2004/04/08 16:55:13 cvs Exp $ 
+# $Id: Console.pm,v 1.3 2004/04/10 09:00:11 cvs Exp $ 
 
 use strict;
 use Term::ReadKey;
@@ -68,6 +68,8 @@ sub ask_pass {
   chomp $pass;
   ReadMode(0);
   print "\n";
+
+  if ($pass eq "") { $pass=undef; }
 
 return $pass;
 }
@@ -418,7 +420,8 @@ whatever is standard for the given UI environment).
 This function displays message 'msg', displays a appropriate prompt and
 asks the user to input his/hers password.
 
-Returns the password that has been entered.
+Returns the password that has been entered, or C<undef>, if an empty
+password has been given.
 
 =back
 

@@ -1,3 +1,6 @@
+0.10 ask_pass will always return 'undef' now if the given password
+     is the empty string "".
+
 0.09 Encryption through tickets using a different scheme.
      Instead of beginning all encryptions with the string 'crypted',
      it starts with a random sequence of 6 bytes, which is repeated.

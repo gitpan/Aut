@@ -1,6 +1,6 @@
 package Aut;
 
-# $Id: Aut.pm,v 1.20 2004/04/09 13:05:14 cvs Exp $
+# $Id: Aut.pm,v 1.21 2004/04/10 09:00:11 cvs Exp $
 
 use 5.006;
 use strict;
@@ -22,7 +22,7 @@ use Aut::UI::Console;
 use Aut::Base64;
 use Aut::Backend::Conf;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 sub new {
   my $class=shift;
@@ -83,7 +83,7 @@ sub initialize {
 					"RSA key-pair. You need to keep this password\n".
 					"secret and will have to remember it!"));
 
-    if ($pass eq "") { die "Cannot continue without password"; }
+    if (not defined $pass) { die "Cannot continue without password"; }
 
     $self->{"ui"}->message(_T("Generating keys, this will take some time...")."($bits bits)");
     my $rsa = new Crypt::RSA;
@@ -342,6 +342,8 @@ sub ticket_get {
   my $account=shift;
   my $pass=shift;
 
+  if (not defined $pass) { $pass=""; }
+
   my $ticket=new Aut::Ticket($account,$pass);
 
   if (not $self->{"backend"}->exists($account)) {
@@ -494,6 +496,8 @@ sub change_pass {
 sub check_pass {
   my $self=shift;
   my $pass=shift;
+
+  if (not defined $pass) { $pass=""; }
 
   my $status=undef;
   my $str="";
