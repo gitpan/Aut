@@ -73,7 +73,7 @@ __END__
 
 =head1 NAME
 
-Aut::Login - Autorization Framework for wxPerl - Tickets
+Aut::Ticket - Authorization Framework for wxPerl - Tickets
 
 =head1 SYNOPSIS
 

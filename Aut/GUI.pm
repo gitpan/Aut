@@ -1,4 +1,4 @@
-package Aut::dlgLogin;
+package __Aut__dlgLogin;
 
 use Wx qw[:everything];
 use base qw(Wx::Dialog);
@@ -25,7 +25,7 @@ sub new {
 	$size   = wxDefaultSize      unless defined $size;
 	$name   = ""                 unless defined $name;
 
-# begin wxGlade: dlgLogin::new
+# begin wxGlade: __Aut__dlgLogin::new
 
 	$style = wxDIALOG_MODAL|wxCAPTION 
 		unless defined $style;
@@ -46,11 +46,10 @@ sub new {
 # end wxGlade
 }
 
-
 sub __set_properties {
 	my $self = shift;
 
-# begin wxGlade: dlgLogin::__set_properties
+# begin wxGlade: __Aut__dlgLogin::__set_properties
 
 	$self->SetTitle(_T("Login"));
 	$self->{authOK}->SetDefault();
@@ -66,7 +65,7 @@ sub __set_properties {
 sub __do_layout {
 	my $self = shift;
 
-# begin wxGlade: dlgLogin::__do_layout
+# begin wxGlade: __Aut__dlgLogin::__do_layout
 
 	$self->{grid_sizer_1} = Wx::GridSizer->new(3, 2, 5, 5);
 	$self->{grid_sizer_1}->Add($self->{label_1}, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 0);
@@ -80,8 +79,10 @@ sub __do_layout {
 	$self->{grid_sizer_1}->Fit($self);
 	$self->{grid_sizer_1}->SetSizeHints($self);
 	$self->Layout();
+	$self->Centre();
 
 # end wxGlade
+#
 }
 
 sub Ok {
@@ -112,7 +113,7 @@ sub pass {
 return $self->{authPass}->GetValue();
 }
 
-# end of class dlgLogin
+# end of class __Aut__dlgLogin
 
 1;
 

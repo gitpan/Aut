@@ -6,7 +6,7 @@ use warnings;
 use Aut::Ticket;
 use Digest::MD5 qw(md5_base64);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
   my $class=shift;
@@ -111,7 +111,7 @@ __END__
 
 =head1 NAME
 
-Aut - Autorization framework for Wx::Perl.
+Aut - Authorization framework for Wx::Perl.
 
 =head1 SYNOPSIS
 

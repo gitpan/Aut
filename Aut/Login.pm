@@ -4,7 +4,7 @@ use strict;
 use Aut::GUI;
 use Lang;
 
-use base qw(Aut::dlgLogin);
+use base qw(__Aut__dlgLogin);
 
 sub new {
     my $class=shift;
@@ -73,7 +73,7 @@ __END__
 
 =head1 NAME
 
-Aut::Login - Autorization Framework for wxPerl - Loggin In
+Aut::Login - Authorization Framework for wxPerl - Loggin In
 
 =head1 SYNOPSIS
 

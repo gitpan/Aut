@@ -113,7 +113,7 @@ __END__
 
 =head1 NAME
 
-Aut::Login - Autorization Framework for wxPerl - SQL Backend
+Aut::Backend::SQL - Authorization Framework for wxPerl - SQL Backend
 
 =head1 SYNOPSIS
 
