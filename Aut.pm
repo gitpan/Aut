@@ -22,7 +22,7 @@ use Aut::UI::Console;
 use Aut::Base64;
 use Aut::Backend::Conf;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
   my $class=shift;
@@ -259,6 +259,23 @@ sub rsa_decrypt {
   }
 }
 
+sub check_rsa_private_pass {
+  my $self=shift;
+  my $pass=shift;
+
+  my ($public_str,$private_str)=$self->{"backend"}->get_keys();
+  $private_str=$self->{"base64"}->decode($private_str);
+
+  my $cipher=new Aut::Crypt($pass);
+  $private_str=$cipher->decrypt($private_str);
+  if (substr($private_str,0,8) ne "private,") {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
 ### Internal Functions
 
 ################################################################
@@ -394,6 +411,11 @@ sub ticket_all_admin_get {
   my $pass=$self->{"ui"}->ask_pass($self,_T("Give the password for the secret RSA key"));
   if (not defined $pass) {
     $self->{"ui"}->message_ok(_T("You need to specify a password for the secret RSA key"));
+    return undef;
+  }
+  elsif (not $self->check_rsa_private_pass($pass)) {
+    $self->{"ui"}->message_ok(_T("The given password for the secret RSA key is not valid"));
+    return undef;
   }
 
   for my $a (@accounts) {

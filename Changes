@@ -1,3 +1,9 @@
+0.06 Fixed a flaw in the ticket_all_admin_get() routine.
+     This routine must check the validity of the given
+     password for the RSA Private key, otherwise the underlying
+     routine will give an error message for each account in the
+     database.
+
 0.05 The first meaningfull functional Aut Framework.
 
 0.02 Small bugfix.
